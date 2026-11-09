@@ -1,0 +1,1214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEBY MUSIC DOWNLOADER 🎧</title>
+
+<style>
+:root {
+    --bg: #f0f2f5;
+    --card: #fff;
+    --text: #171b22;
+    --muted: #647084;
+    --accent: #087f75;
+    --border: #dce2e9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+body.dark {
+    --bg: #111820;
+    --card: #1b2631;
+    --text: #f2f5f8;
+    --muted: #aab7c5;
+    --border: #344352;
+}
+
+header {
+    height: 60px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    width: 35px;
+    height: 35px;
+    background: var(--accent);
+    color: white;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 23px;
+}
+
+header strong { font-size: 17px; }
+
+.layout {
+    display: flex;
+    min-height: calc(100vh - 115px);
+}
+
+.sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 15px 10px;
+    gap: 6px;
+}
+
+.nav-btn {
+    width: 100%;
+    height: 48px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    transition: 0.2s;
+}
+
+.nav-btn .icon {
+    font-size: 22px;
+    width: 28px;
+    text-align: center;
+}
+
+.nav-btn:hover {
+    background: var(--bg);
+    color: var(--accent);
+}
+
+.nav-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+.nav-spacer { flex: 1; }
+
+main {
+    flex: 1;
+    min-width: 0;
+    padding: 25px;
+    padding-bottom: 90px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+.page-heading {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.page-heading h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.page-heading p { color: var(--muted); }
+
+.floating-emoji {
+    font-size: 42px;
+    display: inline-block;
+    animation: float 2.8s ease-in-out infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+}
+
+.search-box {
+    max-width: 750px;
+    margin: 25px auto;
+    display: flex;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 15px;
+}
+
+.search-box input {
+    width: 100%;
+    height: 48px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.search-box span { font-size: 24px; }
+
+.video-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.video-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,.07);
+}
+
+/* Hidden songs on homepage */
+.video-card.search-hidden {
+    display: none;
+}
+
+.video-card video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: block;
+    background: black;
+    object-fit: cover;
+}
+
+.card-info { padding: 14px; }
+
+.card-info h3 {
+    font-size: 16px;
+    margin: 0 0 10px;
+}
+
+.card-info p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.card-actions button,
+.card-actions a {
+    padding: 9px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.card-actions button:hover,
+.card-actions a:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.panel {
+    max-width: 850px;
+    margin: 20px auto;
+    padding: 25px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 3px 8px rgba(0,0,0,.05);
+}
+
+.panel p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.setting-row button {
+    background: var(--accent);
+    color: white;
+    border: 0;
+    padding: 10px 15px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    background: var(--card);
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 180px;
+    right: 0;
+    min-height: 55px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    z-index: 50;
+}
+
+footer button {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    border: 0;
+    padding: 11px 17px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .sidebar { width: 70px; }
+    .nav-btn .label { display: none; }
+    .nav-btn { justify-content: center; padding: 0; }
+    footer { left: 70px; }
+}
+
+@media (max-width: 1050px) {
+    .video-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .video-gallery { grid-template-columns: 1fr; }
+    main { padding: 15px 10px 90px; }
+    .page-heading h1 { font-size: 23px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">♫</div>
+    <strong>LEBY Music Downloader</strong>
+</header>
+
+<div class="layout">
+
+<nav class="sidebar">
+
+    <button class="nav-btn active" onclick="showPage('home', this)">
+        <span class="icon">⌕</span>
+        <span class="label">Home</span>
+    </button>
+
+    <button class="nav-btn" onclick="showPage('downloads', this)">
+        <span class="icon">⇩</span>
+        <span class="label">Downloads</span>
+    </button>
+
+    <button class="nav-btn" onclick="showPage('favourites', this)">
+        <span class="icon">♥</span>
+        <span class="label">Favourites</span>
+    </button>
+
+    <div class="nav-spacer"></div>
+
+    <button class="nav-btn" onclick="showPage('about', this)">
+        <span class="icon">ℹ</span>
+        <span class="label">About</span>
+    </button>
+
+    <button class="nav-btn" onclick="showPage('settings', this)">
+        <span class="icon">⚙</span>
+        <span class="label">Settings</span>
+    </button>
+
+</nav>
+
+<main>
+
+<!-- HOME PAGE -->
+
+<section class="page active" id="home">
+
+    <div class="page-heading">
+        <h1>LEBY MUSIC DOWNLOADER <span class="floating-emoji">🎧</span></h1>
+        <p>Good Vybes 😎🔥</p>
+        <p>For any music we got you 😎👌🔥</p>
+    </div>
+
+    <div class="search-box">
+        <input type="search" id="searchInput"
+        placeholder="Search for songs, artists or videos...">
+        <span>⌕</span>
+    </div>
+
+    <div class="video-gallery" id="homeGallery">
+
+        <article class="video-card" data-id="nganya"
+        data-title="DJ STOOHM">
+
+            <video controls preload="metadata">
+                <source src="NGANYA DRIVE MIX(2026)BEST KENYAN DANCEHALL PARTY[UPBURUKANGA｜ DJ GARRIX ⧸ DJ STOOHM FT VYBZ KARTEL🔥.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Nganya drive Mix(2026) - DJ STOOHM</h3>
+                <p>Experience great music with us 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('kizz')">♡ Save</button>
+                    <a href="NGANYA DRIVE MIX(2026)BEST KENYAN DANCEHALL PARTY[UPBURUKANGA｜ DJ GARRIX ⧸ DJ STOOHM FT VYBZ KARTEL🔥.mp4" download>⇩ Video</a>
+                    <a href="NGANYA DRIVE MIX(2026)BEST KENYAN DANCEHALL PARTY[UPBURUKANGA｜ DJ GARRIX ⧸ DJ STOOHM FT VYBZ KARTEL🔥.mp4" download="Nganya drive MIX (2026).mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="vybz"
+        data-title="vYBZ Kartel Mix - DJ HAVEX">
+
+            <video controls preload="metadata">
+                <source src="VYBZ KARTEL MIX ｜ BEST VYBZ KARTEL SONGS VIDEO MIX 2026 BY VDJ HAVEX.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz Kartel  Mix - DJ HAVEX</h3>
+                <p>Enjoy the vibes 🎧🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('vybz')">♡ Save</button>
+                    <a href="VYBZ KARTEL MIX ｜ BEST VYBZ KARTEL SONGS VIDEO MIX 2026 BY VDJ HAVEX.mp4" download>⇩ Video</a>
+                    <a href="VYBZ KARTEL MIX ｜ BEST VYBZ KARTEL SONGS VIDEO MIX 2026 BY VDJ HAVEX.mp4" download="Vybz Kartel Mix - DJ HAVEX.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="shenseea"
+        data-title="shenseea talk to me nuh">
+
+            <video controls preload="metadata">
+                <source src="Shenseea, Vybz Kartel & Rvssian - Talk To Me Nuh (Official Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Shenseea, Vybz Kartel & Rvssian - Talk To Me Nuh</h3>
+                <p>Turn up the sound 🎧🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('shenseea')">♡ Save</button>
+                    <a href="Shenseea, Vybz Kartel & Rvssian - Talk To Me Nuh (Official Video).mp4" download>⇩ Video</a>
+                    <a href="Shenseea, Vybz Kartel & Rvssian - Talk To Me Nuh (Official Video).mp4" download="Shenseea - Talk To Me Nuh.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="popcaan"
+        data-title="popcaan love yuh bad">
+
+            <video controls preload="metadata">
+                <source src="Popcaan ＂Love Yuh Bad＂ OFFICIAL VIDEO (Produced by Dre Skull).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Popcaan - Love Yuh Bad</h3>
+                <p>Good vibes all around 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('popcaan')">♡ Save</button>
+                    <a href="Popcaan ＂Love Yuh Bad＂ OFFICIAL VIDEO (Produced by Dre Skull).mp4" download>⇩ Video</a>
+                    <a href="Popcaan ＂Love Yuh Bad＂ OFFICIAL VIDEO (Produced by Dre Skull).mp4" download="Popcaan - Love Yuh Bad.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="tip"
+        data-title="ayetian skillibeng nvtzz tip remix">
+
+            <video controls preload="metadata">
+                <source src="Ayetian, Skillibeng, Nvtzz - Tip (Remix) (Official Music Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Ayetian, Skillibeng, Nvtzz - Tip Remix</h3>
+                <p>Enjoy the mix 🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('tip')">♡ Save</button>
+                    <a href="Ayetian, Skillibeng, Nvtzz - Tip (Remix) (Official Music Video).mp4" download>⇩ Video</a>
+                    <a href="Ayetian, Skillibeng, Nvtzz - Tip (Remix) (Official Music Video).mp4" download="Tip Remix.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="bornagain"
+        data-title="vybz kartel born again virgin">
+
+            <video controls preload="metadata">
+                <source src="Vybz Kartel - Born Again Virgin.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz Kartel - Born Again Virgin</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('bornagain')">♡ Save</button>
+                    <a href="Vybz Kartel - Born Again Virgin.mp4" download>⇩ Video</a>
+                    <a href="Vybz Kartel - Born Again Virgin.mp4" download="Vybz Kartel - Born Again Virgin.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="took"
+        data-title="king von took her to the o">
+
+            <video controls preload="metadata">
+                <source src="King Von - Took Her To The O (Official Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>KING VON - TOOK HER TO THE O</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('took')">♡ Save</button>
+                    <a href="King Von - Took Her To The O (Official Video).mp4" download>⇩ Video</a>
+                    <a href="King Von - Took Her To The O (Official Video).mp4" download="King Von - Took her to the O.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="toyin"
+        data-title="strei toyin tomato">
+
+            <video controls preload="metadata">
+                <source src="Strei – Toyin Tomato (Official Lyric Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Steri Toyin - Tomato</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('toyin')">♡ Save</button>
+                    <a href="Strei – Toyin Tomato (Official Lyric Video).mp4" download>⇩ Video</a>
+                    <a href="Strei – Toyin Tomato (Official Lyric Video).mp4" download="Strei - Toyin Tomato.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="shake"
+        data-title="moliy shenseea skillibeng shake it to the max">
+
+            <video controls preload="metadata">
+                <source src="MOLIY, Shenseea, Skillibeng, Silent Addy - Shake It To The Max (Fly) (Remix) (Official Music Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Molly, Skillibeng, Silent Addy - Shake it to the max</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('shake')">♡ Save</button>
+                    <a href="MOLIY, Shenseea, Skillibeng, Silent Addy - Shake It To The Max (Fly) (Remix) (Official Music Video).mp4" download>⇩ Video</a>
+                    <a href="MOLIY, Shenseea, Skillibeng, Silent Addy - Shake It To The Max (Fly) (Remix) (Official Music Video).mp4" download="Molly - Shake It To The Max.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="nganya"
+        data-title="dj muflo the nganya 10 mix">
+
+            <video controls preload="metadata">
+                <source src="DJ Muflo – The Nganya 10 Mix (2026 Dancehall Party Mix) ｜ Best Kenyan Dancehall & Street Vibes.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>DJ Muflo - The Nganya Mix</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('nganya')">♡ Save</button>
+                    <a href="DJ Muflo – The Nganya 10 Mix (2026 Dancehall Party Mix) ｜ Best Kenyan Dancehall & Street Vibes.mp4" download>⇩ Video</a>
+                    <a href="DJ Muflo – The Nganya 10 Mix (2026 Dancehall Party Mix) ｜ Best Kenyan Dancehall & Street Vibes.mp4" download="DJ Muflo - Nganya Mix.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="options"
+        data-title="nigy boy options">
+
+            <video controls preload="metadata">
+                <source src="Nigy Boy - Options Lyrics (Story Book Riddim) ｜ Strictly Lyrics.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Nigy - Options</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('options')">♡ Save</button>
+                    <a href="Nigy Boy - Options Lyrics (Story Book Riddim) ｜ Strictly Lyrics.mp4" download>⇩ Video</a>
+                    <a href="Nigy Boy - Options Lyrics (Story Book Riddim) ｜ Strictly Lyrics.mp4" download="Nigy - Options.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="dancehall"
+        data-title="vybz kartel dancehall">
+
+            <video controls preload="metadata">
+                <source src="Vybz Kartel - Dancehall.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz Kartel - Dancehall</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('dancehall')">♡ Save</button>
+                    <a href="Vybz Kartel - Dancehall.mp4" download>⇩ Video</a>
+                    <a href="Vybz Kartel - Dancehall.mp4" download="Vybz Kartel - Dancehall.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="joeboy"
+        data-title="joeboy sip alcohol">
+
+            <video controls preload="metadata">
+                <source src="Joeboy - Sip (Alcohol) [Official Music Video].mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Joeboy - Sip (Alcohol)</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('joeboy')">♡ Save</button>
+                    <a href="Joeboy - Sip (Alcohol) [Official Music Video].mp4" download>⇩ Video</a>
+                    <a href="Joeboy - Sip (Alcohol) [Official Music Video].mp4" download="Joeboy - Sip Alcohol.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="backway"
+        data-title="vybz kartel spice back way">
+
+            <video controls preload="metadata">
+                <source src="Vybz Kartel, Spice - Back Way (Official Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz Kartel, Spice - The Back Way</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('backway')">♡ Save</button>
+                    <a href="Vybz Kartel, Spice - Back Way (Official Video).mp4" download>⇩ Video</a>
+                    <a href="Vybz Kartel, Spice - Back Way (Official Video).mp4" download="Vybz Kartel Spice - Back Way.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="niseme"
+        data-title="otile brown barakah the prince niseme nawe">
+
+            <video controls preload="metadata">
+                <source src="OTILE BROWN ft BARAKAH THE PRINCE - NISEME NAWE (Official Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Otile Brown ft Barakah - Niseme Nawe</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('niseme')">♡ Save</button>
+                    <a href="OTILE BROWN ft BARAKAH THE PRINCE - NISEME NAWE (Official Video).mp4" download>⇩ Video</a>
+                    <a href="OTILE BROWN ft BARAKAH THE PRINCE - NISEME NAWE (Official Video).mp4" download="Otile Brown - Niseme Nawe.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="noair"
+        data-title="jordin sparks chris brown no air">
+
+            <video controls preload="metadata">
+                <source src="Jordin Sparks, Chris Brown - No Air (Official Video) ft. Chris Brown.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Jordin Sparks, Chris Brown - No Air</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('noair')">♡ Save</button>
+                    <a href="Jordin Sparks, Chris Brown - No Air (Official Video) ft. Chris Brown.mp4" download>⇩ Video</a>
+                    <a href="Jordin Sparks, Chris Brown - No Air (Official Video) ft. Chris Brown.mp4" download="Jordin Sparks Chris Brown - No Air.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="bestvybz"
+        data-title="2025 free world boss gaza series vybz kartel mixtape">
+
+            <video controls preload="metadata">
+                <source src="2025 FREE WORLD BOSS GAZA SERIES BEST OF VYBZ KARTEL MIXTAPE DEEJAY BRYCE RAMBO KANAMBO PARTY NICE.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>2025 Free World Boss Gaza Series - Best of Vybz Kartel Mix</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('bestvybz')">♡ Save</button>
+                    <a href="2025 FREE WORLD BOSS GAZA SERIES BEST OF VYBZ KARTEL MIXTAPE DEEJAY BRYCE RAMBO KANAMBO PARTY NICE.mp4" download>⇩ Video</a>
+                    <a href="2025 FREE WORLD BOSS GAZA SERIES BEST OF VYBZ KARTEL MIXTAPE DEEJAY BRYCE RAMBO KANAMBO PARTY NICE.mp4" download="2025 Free World Boss Gaza Series.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+        <article class="video-card" data-id="cough"
+        data-title="cough, empire">
+
+            <video controls preload="metadata">
+                <source src="Kizz Daniel, EMPIRE - Cough (Official Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Kizz Daniel - Cough Emire</h3>
+                <p>🎧🔥🔥</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('bestvybz')">♡ Save</button>
+                    <a href="Kizz Daniel, EMPIRE - Cough (Official Video).mp4" download>⇩ Video</a>
+                    <a href="Kizz Daniel, EMPIRE - Cough (Official Video).mp4" download="Kizz Daniel Cough Empire.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="vybzkartel"
+        data-title="God is the Greatest">
+
+            <video controls preload="metadata">
+                <source src="Vybz Kartel - God Is The Greatest (Official Music Video).mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz KARTEL God is the Greatest</h3>
+                <p>Experience great music with us 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('kizz')">♡ Save</button>
+                    <a href="Vybz Kartel - God Is The Greatest (Official Music Video).mp4" download>⇩ Video</a>
+                    <a href="Vybz Kartel - God Is The Greatest (Official Music Video).mp4" download="God is the Greatest - Vybz Kartel.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="Nganya"
+        data-title="DJ Flowerz">
+
+            <video controls preload="metadata">
+                <source src="NGANYA DRIVE MIX 4 (2026) 🇰🇪🔥 Best Kenyan Dancehall Party ｜ DJ Flowerz ft Vybz Kartel.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Nganya Drive mix 4 - DJ FLOWEZ</h3>
+                <p>Experience great music with us 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('kizz')">♡ Save</button>
+                    <a href="NGANYA DRIVE MIX 4 (2026) 🇰🇪🔥 Best Kenyan Dancehall Party ｜ DJ Flowerz ft Vybz Kartel.mp4" download>⇩ Video</a>
+                    <a href="NGANYA DRIVE MIX 4 (2026) 🇰🇪🔥 Best Kenyan Dancehall Party ｜ DJ Flowerz ft Vybz Kartel.mp4" download="Nganya drive mix 2- DJ Flowerz.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="dancehall"
+        data-title="VYBZ KARTEL">
+
+            <video controls preload="metadata">
+                <source src="Vybz Kartel - Paradise ｜ Brit Jam Flesh ｜  Dancehall 2015 ｜ 21st Hapilos.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>Vybz Kartel - Paradise</h3>
+                <p>Experience great music with us 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('kizz')">♡ Save</button>
+                    <a href="Vybz Kartel - Paradise ｜ Brit Jam Flesh ｜  Dancehall 2015 ｜ 21st Hapilos.mp4" download>⇩ Video</a>
+                    <a href="Vybz Kartel - Paradise ｜ Brit Jam Flesh ｜  Dancehall 2015 ｜ 21st Hapilos.mp4" download="vVybz Kartel - Paradise.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="video-card" data-id="Nganya"
+        data-title="DJ Stan">
+
+            <video controls preload="metadata">
+                <source src="🔥DJ STAN_ BEST NGANYA BANGERS  🚀🎶FT VYBZ KARTEL ｜ DANCEHALL ｜ SHENSEEA ｜ RIDDIM- EDITION.mp4" type="video/mp4">
+            </video>
+
+            <div class="card-info">
+                <h3>🔥 DJ Sasn - Nest Nganya Bangers</h3>
+                <p>Experience great music with us 🎧</p>
+
+                <div class="card-actions">
+                    <button onclick="toggleFavourite('kizz')">♡ Save</button>
+                    <a href="🔥DJ STAN_ BEST NGANYA BANGERS  🚀🎶FT VYBZ KARTEL ｜ DANCEHALL ｜ SHENSEEA ｜ RIDDIM- EDITION.mp4" download>⇩ Video</a>
+                    <a href="🔥DJ STAN_ BEST NGANYA BANGERS  🚀🎶FT VYBZ KARTEL ｜ DANCEHALL ｜ SHENSEEA ｜ RIDDIM- EDITION.mp4" download="Dj Stan Best Nganya Bangers.mp3">♪ Audio</a>
+                </div>
+            </div>
+        </article>
+
+
+    </div>
+
+    <!--add videos above this line-->
+
+    <p id="noResults" hidden class="empty">
+        No matching videos found.
+    </p>
+
+</section>
+
+<!-- DOWNLOADS -->
+
+<section class="page" id="downloads">
+
+    <div class="page-heading">
+        <h1>My Downloads ⇩</h1>
+        <p>Discover and download your favourite videos.</p>
+    </div>
+
+    <div class="video-gallery" id="downloadsGallery"></div>
+
+</section>
+
+<!-- FAVOURITES -->
+
+<section class="page" id="favourites">
+
+    <div class="page-heading">
+        <h1>My Favourites ♥</h1>
+        <p>Your personal collection of saved videos.</p>
+    </div>
+
+    <div class="video-gallery" id="favouritesGallery"></div>
+
+    <div id="emptyFavourites" class="empty" hidden>
+        You haven't saved any videos yet.
+        <br><br>
+        Visit Home and save your favourite music!
+    </div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section class="page" id="about">
+
+    <div class="page-heading">
+        <h1>About LEBY MUSIC 🎧</h1>
+        <p>Good Vybes. Great Music. 😎🔥</p>
+    </div>
+
+    <div class="panel">
+
+        <h2>Welcome to LEBY MUSIC DOWNLOADER</h2>
+
+        <p>
+            LEBY MUSIC is a music and video website designed to give
+            music lovers a simple and enjoyable experience.
+        </p>
+
+        <h3>Our Features</h3>
+
+        <ul>
+            <li>Music and video gallery</li>
+            <li>Search functionality</li>
+            <li>Video and audio download links</li>
+            <li>Favourite music collection</li>
+            <li>Dark mode</li>
+        </ul>
+
+        <h3>Our Motto</h3>
+
+        <p><strong>GOOD VYBES ONLY! 😎🔥🎧</strong></p>
+
+    </div>
+
+</section>
+
+<!-- SETTINGS -->
+
+<section class="page" id="settings">
+
+    <div class="page-heading">
+        <h1>Settings ⚙</h1>
+        <p>Customize your experience.</p>
+    </div>
+
+    <div class="panel">
+
+        <h2>Appearance</h2>
+
+        <div class="setting-row">
+            <div>
+                <strong>Dark Mode</strong>
+                <p>Change your website appearance.</p>
+            </div>
+
+            <input type="checkbox" id="darkModeToggle">
+        </div>
+
+        <h2>Favourites</h2>
+
+        <div class="setting-row">
+            <div>
+                <strong>Clear Favourites</strong>
+                <p>Remove all saved videos.</p>
+            </div>
+
+            <button onclick="clearFavourites()">Clear</button>
+        </div>
+
+        <h2>Website Information</h2>
+        <p>LEBY MUSIC DOWNLOADER © 2026</p>
+
+    </div>
+
+</section>
+
+</main>
+</div>
+
+<footer>
+    <span>♛ LEBY MUSIC</span>
+    <span>• Multiple Videos</span>
+    <span>• Video + Audio</span>
+    <button onclick="showPage('about')">About Us</button>
+</footer>
+
+<script>
+
+// ====================================
+// PAGE NAVIGATION
+// ====================================
+
+function showPage(page, button) {
+
+    document.querySelectorAll(".page").forEach(p => {
+        p.classList.remove("active");
+    });
+
+    document.getElementById(page).classList.add("active");
+
+    document.querySelectorAll(".nav-btn").forEach(b => {
+        b.classList.remove("active");
+    });
+
+    if (button) {
+        button.classList.add("active");
+    }
+
+    if (page === "downloads") {
+        loadDownloads();
+    }
+
+    if (page === "favourites") {
+        loadFavourites();
+    }
+
+    window.scrollTo(0, 0);
+}
+
+
+// ====================================
+// FAVOURITES
+// ====================================
+
+function getFavourites() {
+
+    return JSON.parse(
+        localStorage.getItem("lebyMusicFavourites") || "[]"
+    );
+
+}
+
+
+function toggleFavourite(id) {
+
+    let saved = getFavourites();
+
+    if (saved.includes(id)) {
+
+        saved = saved.filter(item => item !== id);
+
+    } else {
+
+        saved.push(id);
+
+    }
+
+    localStorage.setItem(
+        "lebyMusicFavourites",
+        JSON.stringify(saved)
+    );
+
+    updateButtons();
+
+    if (
+        document.getElementById("favourites")
+        .classList.contains("active")
+    ) {
+        loadFavourites();
+    }
+
+}
+
+
+function updateButtons() {
+
+    const saved = getFavourites();
+
+    document.querySelectorAll("[data-id]").forEach(card => {
+
+        const button = card.querySelector("button");
+
+        if (button) {
+
+            button.textContent = saved.includes(card.dataset.id)
+                ? "♥ Saved"
+                : "♡ Save";
+
+        }
+
+    });
+
+}
+
+
+// ====================================
+// DOWNLOADS PAGE
+// ====================================
+
+function loadDownloads() {
+
+    const gallery = document.getElementById("downloadsGallery");
+
+    gallery.innerHTML = document.getElementById("homeGallery").innerHTML;
+
+    updateButtons();
+
+}
+
+
+// ====================================
+// FAVOURITES PAGE
+// ====================================
+
+function loadFavourites() {
+
+    const gallery = document.getElementById("favouritesGallery");
+
+    const saved = getFavourites();
+
+    let html = "";
+
+    document.querySelectorAll("#homeGallery .video-card").forEach(card => {
+
+        if (saved.includes(card.dataset.id)) {
+
+            html += card.outerHTML;
+
+        }
+
+    });
+
+    gallery.innerHTML = html;
+
+    document.getElementById("emptyFavourites").hidden = html !== "";
+
+    updateButtons();
+
+}
+
+
+// ====================================
+// CLEAR FAVOURITES
+// ====================================
+
+function clearFavourites() {
+
+    if (confirm("Are you sure you want to clear all favourites?")) {
+
+        localStorage.removeItem("lebyMusicFavourites");
+
+        updateButtons();
+
+        loadFavourites();
+
+        alert("Your favourites have been cleared!");
+
+    }
+
+}
+
+
+// ====================================
+// HOMEPAGE SEARCH
+// SHOW FIRST 6 SONGS INITIALLY
+// SHOW ALL MATCHING SONGS WHEN SEARCHING
+// ====================================
+
+function updateHomeSongs() {
+
+    const search = document.getElementById("searchInput")
+        .value.toLowerCase().trim();
+
+    const cards = document.querySelectorAll(
+        "#homeGallery .video-card"
+    );
+
+    let count = 0;
+
+    cards.forEach((card, index) => {
+
+        const title = (card.dataset.title || "").toLowerCase();
+
+        const heading = (
+            card.querySelector("h3")?.textContent || ""
+        ).toLowerCase();
+
+        const match = title.includes(search) ||heading.includes(search);
+
+        let shouldShow;
+
+        if (search === "") {
+
+            // Only first 6 songs on homepage
+            shouldShow = index < 6;
+
+        } else {
+
+            // Search through ALL songs
+            shouldShow = match;
+
+        }
+
+        card.classList.toggle(
+            "search-hidden",
+            !shouldShow
+        );
+
+        if (shouldShow) {
+            count++;
+        }
+
+    });
+
+    document.getElementById("noResults").hidden = count !== 0;
+
+}
+
+
+// Search listener
+
+document.getElementById("searchInput").addEventListener(
+    "input",
+    updateHomeSongs
+);
+
+
+// ====================================
+// DARK MODE
+// ====================================
+
+const darkToggle = document.getElementById("darkModeToggle");
+
+if (localStorage.getItem("lebyMusicTheme") === "dark") {
+
+    document.body.classList.add("dark");
+
+}
+
+darkToggle.checked = document.body.classList.contains("dark");
+
+darkToggle.addEventListener("change", function () {
+
+    document.body.classList.toggle("dark", this.checked);
+
+    localStorage.setItem(
+        "lebyMusicTheme",
+        this.checked ? "dark" : "light"
+    );
+
+});
+
+// ====================================
+// ONLY ONE VIDEO PLAYS AT A TIME
+// ====================================
+
+document.addEventListener('play', function(e) {
+    if (e.target.tagName === 'VIDEO') {
+        document.querySelectorAll('video').forEach(video => {
+            if (video !== e.target) {
+                video.pause();
+            }
+        });
+    }
+}, true);
+
+
+// ====================================
+// INITIALIZE WEBSITE
+// ====================================
+
+// Display only 6 songs when website opens
+updateHomeSongs();
+
+// Update all favourite buttons
+updateButtons();
+
+</script>
+
+</body>
+</html>
